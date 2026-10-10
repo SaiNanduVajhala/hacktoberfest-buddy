@@ -76,7 +76,7 @@ graph TD
 
     subgraph Adapters ["Service Adapters (buddy/)"]
         LLM["Ollama LLM Client<br/>(llm.py)"]
-        GH["GitHub API & Scraper<br/>(github_api.py)"]
+        GH["GitHub REST API client<br/>(github_api.py)"]
         MEM["Persistent Memory Manager<br/>(memory.py)"]
     end
 
@@ -183,7 +183,7 @@ Clone this repository and set up a Python virtual environment:
 
 ```bash
 # Clone the repository
-git clone https://github.com/YOUR_USERNAME/hacktoberfest-buddy.git
+git clone https://github.com/SaiNanduVajhala/hacktoberfest-buddy.git
 cd hacktoberfest-buddy
 
 # Create a virtual environment
@@ -260,7 +260,7 @@ Launch the multi-user Telegram bot:
 ```
 *(On macOS/Linux: `python telegram_bot.py`)*
 
-1. Open Telegram and search for your bot (or [`@hacktober_bot`](https://t.me/hacktober_bot)).
+1. Open Telegram and search for your bot username (configured via `@BotFather`).
 2. Tap `/start`.
 3. Introduce yourself and interact with your mentor on the go!
 
@@ -448,7 +448,7 @@ hacktoberfest-buddy/
 │   ├── __init__.py           # Package indicator
 │   ├── config.py             # Loads .env; configures Ollama, GitHub & Telegram
 │   ├── llm.py                # Thin OpenAI client wrapper for Ollama with error recovery
-│   ├── github_api.py         # Search query builder, rate-limit pacer, repo context scraper
+│   ├── github_api.py         # Search query builder, rate-limit pacer, repo context fetcher
 │   ├── memory.py             # Per-user JSON profiles and state persistence (memory/*.json)
 │   ├── prompts.py            # Mentor persona, profile extraction, ranking & plan templates
 │   └── core.py               # Framework-agnostic conversation logic & state engine
