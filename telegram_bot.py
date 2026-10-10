@@ -134,7 +134,7 @@ async def on_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     # Immediately send ETA notification to the user
     eta_msg = await update.message.reply_text(
-        "⏳ On it! Searching GitHub and consulting your mentor... (ETA: ~10-15 seconds)"
+        "⏳ On it! Searching GitHub and consulting your mentor... (ETA: ~45 seconds to 1 minute)"
     )
 
     # Show "typing" indicator in background

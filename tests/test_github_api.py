@@ -216,6 +216,20 @@ class TestIntentDetection:
         assert _detect_intent("/pr")[0] == "pr"
         assert _detect_intent("draft pr")[0] == "pr"
 
+    def test_details_intent(self):
+        from buddy.core import _detect_intent
+        assert _detect_intent("details 1") == ("details", "1")
+        assert _detect_intent("/details 2") == ("details", "2")
+        assert _detect_intent("describe 3") == ("details", "3")
+        assert _detect_intent("explain #2") == ("details", "2")
+        assert _detect_intent("tell me more about 1") == ("details", "1")
+
+    def test_commands_intent(self):
+        from buddy.core import _detect_intent
+        assert _detect_intent("commands")[0] == "commands"
+        assert _detect_intent("/setup")[0] == "commands"
+        assert _detect_intent("git commands")[0] == "commands"
+
     def test_freetext_intent(self):
         from buddy.core import _detect_intent
         intent, arg = _detect_intent("I know Python and React")

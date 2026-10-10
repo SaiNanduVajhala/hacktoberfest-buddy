@@ -158,6 +158,9 @@ def handle_message(user_id: str, text: str) -> str:
         if intent == "more":
             return _handle_more(user_id, prof)
 
+        if intent in ("details", "commands"):
+            return _handle_details(user_id, prof, arg)
+
         if intent in ("pick", "pick_url"):
             return _handle_pick(user_id, prof, intent, arg)
 
@@ -275,8 +278,9 @@ def _search_and_rank(user_id: str, prof: dict) -> str:
     )
     return header + _format_issue_list(ranked) + (
         "\n\n💡 **What now?** Reply with:\n"
-        "- `pick 1`, `pick 2`, or `pick 3` to dive into one\n"
-        "- A GitHub issue URL to explore any issue\n"
+        "- `pick 1`, `pick 2`, or `pick 3` to get step-by-step guidance & copy-paste git commands\n"
+        "- `details 1`, `details 2`, or `details 3` for a deep architectural description\n"
+        "- A GitHub issue URL to explore any specific issue\n"
         "- `more` for more suggestions\n"
         "- `profile` to see your saved skills"
     )
@@ -285,6 +289,50 @@ def _search_and_rank(user_id: str, prof: dict) -> str:
 def _handle_more(user_id: str, prof: dict) -> str:
     """Show the next batch of issues."""
     return _search_and_rank(user_id, prof)
+
+
+def _handle_details(user_id: str, prof: dict, arg: str) -> str:
+    """Provide an in-depth technical description and tailored Git setup."""
+    issue_url = None
+
+    if arg and arg.isdigit():
+        idx = int(arg) - 1
+        last_ranked = prof.get("_last_ranked", [])
+        if 0 <= idx < len(last_ranked):
+            issue_url = last_ranked[idx].get("url", "")
+        else:
+            return f"❌ Choose an issue number between 1 and {len(last_ranked)}."
+    elif prof.get("_current_issue"):
+        issue_url = prof.get("_current_issue")
+    elif prof.get("_last_ranked"):
+        issue_url = prof["_last_ranked"][0].get("url", "")
+
+    if not issue_url:
+        return "❌ Which issue would you like detailed info on? Try `details 1`, `details 2`, or paste a GitHub URL."
+
+    # Mark as tried
+    memory.mark_tried(user_id, issue_url)
+
+    # Fetch full repo context
+    context = repo_brief(issue_url)
+
+    # Ask the LLM for deep technical breakdown
+    prompt = prompts.DETAILED_DESCRIPTION.format(context=context)
+    reply = llm.chat(prompts.SYSTEM, prompt, temperature=0.3)
+
+    prof = memory.load(user_id)
+    prof["stage"] = "ISSUE_CHOSEN"
+    prof["_current_issue"] = issue_url
+    memory.save(user_id, prof)
+
+    footer = (
+        "\n\n---\n"
+        "💡 **Next steps:**\n"
+        "- `pick` to see concise checklist & claim comment\n"
+        "- `pr` when you are ready to draft your Pull Request\n"
+        "- `more` to explore other open issues"
+    )
+    return reply + footer
 
 
 def _handle_pick(user_id: str, prof: dict, intent: str, arg: str) -> str:
@@ -322,6 +370,7 @@ def _handle_pick(user_id: str, prof: dict, intent: str, arg: str) -> str:
     footer = (
         "\n\n---\n"
         "💡 **Next steps:**\n"
+        "- `details` for a deeper architectural breakdown\n"
         "- `pr` when you're ready to draft a PR description\n"
         "- `more` to see other issues\n"
         "- Paste another issue URL to explore it"
