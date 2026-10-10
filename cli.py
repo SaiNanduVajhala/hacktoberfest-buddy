@@ -23,7 +23,7 @@ WELCOME = """
   Tell me about yourself:
     "I know Python and a bit of React, I have 2 hours"
 
-  Commands: more, pick N, pr, profile, reset
+  Commands: pick N, details N, setup, more, pr, profile, reset
   Press Ctrl+C to exit.
 ============================================================
 """
@@ -43,7 +43,7 @@ def main():
             if not text:
                 continue
 
-            print("\n⏳ On it! Searching GitHub and consulting your mentor... (ETA: ~10-15s)\n")
+            print("\n⏳ On it! Searching GitHub and consulting your mentor... (ETA: ~45 seconds to 1 minute)\n")
             reply = handle_message(user_id, text)
             print(reply)
 
